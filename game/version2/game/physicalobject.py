@@ -1,31 +1,21 @@
-import pyglet
+from pyglet.sprite import Sprite
 
 
-class PhysicalObject(pyglet.sprite.Sprite):
-    """A sprite with physical properties such as velocity"""
+class PhysicalObject(Sprite):
+    """A sprite with physical properties such as velocity."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.velocity_x = 0.0
+        self.velocity_y = 0.0
 
-        # In addition to position, we have velocity
-        self.velocity_x, self.velocity_y = 0.0, 0.0
-
-    def update(self, dt):
-        """This method should be called every frame."""
-
-        # Update position according to velocity and time
-        self.x += self.velocity_x * dt
-        self.y += self.velocity_y * dt
-
-        # Wrap around the screen if necessary
-        self.check_bounds()
-
-    def check_bounds(self):
+    def _check_bounds(self):
         """Use the classic Asteroids screen wrapping behavior"""
-        min_x = -self.image.width / 2
-        min_y = -self.image.height / 2
-        max_x = 800 + self.image.width / 2
-        max_y = 600 + self.image.height / 2
+
+        min_x = -self.image.width / 2  # type: ignore
+        min_y = -self.image.height / 2  # type: ignore
+        max_x = 800 + self.image.width / 2  # type: ignore
+        max_y = 600 + self.image.height / 2  # type: ignore
         if self.x < min_x:
             self.x = max_x
         elif self.x > max_x:
@@ -34,3 +24,11 @@ class PhysicalObject(pyglet.sprite.Sprite):
             self.y = max_y
         elif self.y > max_y:
             self.y = min_y
+
+    def update(self, dt):
+        """This method should be called every frame."""
+
+        self.x += self.velocity_x * dt
+        self.y += self.velocity_y * dt
+
+        self._check_bounds()
