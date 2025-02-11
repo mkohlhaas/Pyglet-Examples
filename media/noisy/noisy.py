@@ -1,75 +1,80 @@
 #!/usr/bin/env python
+
 """Bounces balls around a window and plays noises.
 
-This is a simple demonstration of how pyglet efficiently manages many sound
-channels without intervention.
+This is a simple demonstration of how pyglet efficiently manages many sound channels without intervention.
 """
 
-import random
 import sys
+from random import random as rnd
 
-import pyglet
-from pyglet.window import key
+from pyglet import app, clock
+from pyglet.graphics import Batch
+from pyglet.resource import image, media
+from pyglet.sprite import Sprite
+from pyglet.text import Label
+from pyglet.window import Window, key
 
-BALL_IMAGE = 'ball.png'
-BALL_SOUND = 'ball.wav'
+BALL_IMAGE = "ball.png"
+BALL_SOUND = "ball.wav"
 
 if len(sys.argv) > 1:
     BALL_SOUND = sys.argv[1]
 
-window = pyglet.window.Window(640, 480)
+wnd = Window(640, 480)
 
-sound = pyglet.resource.media(BALL_SOUND, streaming=False)
-balls_batch = pyglet.graphics.Batch()
+sound = media(BALL_SOUND, streaming=False)
+balls_batch = Batch()
 balls = []
-label = pyglet.text.Label('Press space to add a ball, backspace to remove',
-                          font_size=14,
-                          x=window.width // 2, y=10,
-                          anchor_x='center')
+label = Label(
+    "Press space to add a ball, backspace to remove.",
+    font_size=14,
+    x=wnd.width // 2,
+    y=10,
+    anchor_x="center",
+)
 
 
-class Ball(pyglet.sprite.Sprite):
-    ball_image = pyglet.resource.image(BALL_IMAGE)
-    width = ball_image.width
-    height = ball_image.height
+class Ball(Sprite):
+    ball_image = image(BALL_IMAGE)
+    width: int = ball_image.width
+    height: int = ball_image.height
 
     def __init__(self):
-        x = random.random() * (window.width - self.width)
-        y = random.random() * (window.height - self.height)
+        x = rnd() * (wnd.width - self.width)
+        y = rnd() * (wnd.height - self.height)
 
         super().__init__(self.ball_image, x, y, batch=balls_batch)
 
-        self.dx = (random.random() - 0.5) * 1000
-        self.dy = (random.random() - 0.5) * 1000
+        self.dx = (rnd() - 0.5) * 1000
+        self.dy = (rnd() - 0.5) * 1000
 
     def update_position(self, dt):
-        if self.x <= 0 or self.x + self.width >= window.width:
+        if self.x <= 0 or self.x + self.width >= wnd.width:
             self.dx *= -1
             sound.play()
-        if self.y <= 0 or self.y + self.height >= window.height:
+        if self.y <= 0 or self.y + self.height >= wnd.height:
             self.dy *= -1
             sound.play()
         self.x += self.dx * dt
         self.y += self.dy * dt
 
-        self.x = min(max(self.x, 0), window.width - self.width)
-        self.y = min(max(self.y, 0), window.height - self.height)
+        self.x = min(max(self.x, 0), wnd.width - self.width)
+        self.y = min(max(self.y, 0), wnd.height - self.height)
 
 
-@window.event
-def on_key_press(symbol, modifiers):
+@wnd.event
+def on_key_press(symbol, _modifiers):
     if symbol == key.SPACE:
         balls.append(Ball())
     elif symbol == key.BACKSPACE:
         if balls:
-            del balls[-1]
-    elif symbol == key.ESCAPE:
-        window.has_exit = True
+            balls.pop()
 
 
-@window.event
+@wnd.event
 def on_draw():
-    window.clear()
+    wnd.clear()
     balls_batch.draw()
     label.draw()
 
@@ -79,6 +84,6 @@ def update(dt):
         ball.update_position(dt)
 
 
-if __name__ == '__main__':
-    pyglet.clock.schedule_interval(update, 1 / 30.)
-    pyglet.app.run()
+if __name__ == "__main__":
+    clock.schedule_interval(update, 1 / 30.0)
+    app.run()
