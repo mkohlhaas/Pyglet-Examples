@@ -1,15 +1,18 @@
-import random
-from . import physicalobject, resources
+from random import randint
+from random import random as rnd
+
+from game import resources
+from game.physicalobject import PhysicalObject
 
 
-class Asteroid(physicalobject.PhysicalObject):
-    """An asteroid that divides a little before it dies"""
+class Asteroid(PhysicalObject):
+    """An asteroid that divides a little before it dies."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(resources.asteroid_image, *args, **kwargs)
 
         # Slowly rotate the asteroid as it moves
-        self.rotate_speed = random.random() * 100.0 - 50.0
+        self.rotate_speed = rnd() * 100.0 - 50.0
 
     def update(self, dt):
         super().update(dt)
@@ -20,11 +23,11 @@ class Asteroid(physicalobject.PhysicalObject):
 
         # Superclass handles deadness already
         if self.dead and self.scale > 0.25:
-            num_asteroids = random.randint(2, 3)
+            num_asteroids = randint(2, 3)
             for i in range(num_asteroids):
                 new_asteroid = Asteroid(x=self.x, y=self.y, batch=self.batch)
-                new_asteroid.rotation = random.randint(0, 360)
-                new_asteroid.velocity_x = random.random() * 70 + self.velocity_x
-                new_asteroid.velocity_y = random.random() * 70 + self.velocity_y
+                new_asteroid.rotation = randint(0, 360)
+                new_asteroid.velocity_x = rnd() * 70 + self.velocity_x
+                new_asteroid.velocity_y = rnd() * 70 + self.velocity_y
                 new_asteroid.scale = self.scale * 0.5
                 self.new_objects.append(new_asteroid)
