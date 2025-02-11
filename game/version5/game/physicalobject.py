@@ -1,8 +1,9 @@
-import pyglet
-from . import util
+from pyglet.sprite import Sprite
+
+from game import util
 
 
-class PhysicalObject(pyglet.sprite.Sprite):
+class PhysicalObject(Sprite):
     """A sprite with physical properties such as velocity"""
 
     def __init__(self, *args, **kwargs):
@@ -37,10 +38,10 @@ class PhysicalObject(pyglet.sprite.Sprite):
 
     def check_bounds(self):
         """Use the classic Asteroids screen wrapping behavior"""
-        min_x = -self.image.width / 2
-        min_y = -self.image.height / 2
-        max_x = 800 + self.image.width / 2
-        max_y = 600 + self.image.height / 2
+        min_x = -self.image.width / 2  # type: ignore
+        min_y = -self.image.height / 2  # type: ignore
+        max_x = 800 + self.image.width / 2  # type: ignore
+        max_y = 600 + self.image.height / 2  # type: ignore
         if self.x < min_x:
             self.x = max_x
         if self.y < min_y:
@@ -61,13 +62,15 @@ class PhysicalObject(pyglet.sprite.Sprite):
 
         # Calculate distance between object centers that would be a collision,
         # assuming square resources
-        collision_distance = self.image.width * 0.5 * self.scale \
-                             + other_object.image.width * 0.5 * other_object.scale
+        collision_distance = (
+            self.image.width * 0.5 * self.scale  # type: ignore
+            + other_object.image.width * 0.5 * other_object.scale
+        )
 
         # Get distance using position tuples
         actual_distance = util.distance(self.position, other_object.position)
 
-        return (actual_distance <= collision_distance)
+        return actual_distance <= collision_distance
 
     def handle_collision_with(self, other_object):
         if other_object.__class__ is not self.__class__:

@@ -1,22 +1,40 @@
-import pyglet
-from game import asteroid, load, player
+#!/usr/bin/env python
+
+from pyglet import app, clock
+from pyglet.graphics import Batch
+from pyglet.text import Label
+from pyglet.window import FPSDisplay, Window
+
+from game import load
+from game.asteroid import Asteroid
+from game.player import Player
 
 # Set up a window
-game_window = pyglet.window.Window(800, 600)
+game_window = Window(800, 600)
 
-main_batch = pyglet.graphics.Batch()
+main_batch = Batch()
 
 # Set up the two top labels
-score_label = pyglet.text.Label(text="Score: 0", x=10, y=575, batch=main_batch)
-level_label = pyglet.text.Label(text="Version 5: It's a Game!",
-                                x=400, y=575, anchor_x='center', batch=main_batch)
+score_label = Label(text="Score: 0", x=10, y=575, batch=main_batch)
+level_label = Label(
+    text="Version 5: It's a Game!",
+    x=400,
+    y=575,
+    anchor_x="center",
+    batch=main_batch,
+)
 
 # Set up the game over label offscreen
-game_over_label = pyglet.text.Label(text="GAME OVER",
-                                    x=400, y=-300, anchor_x='center',
-                                    batch=main_batch, font_size=48)
+game_over_label = Label(
+    text="GAME OVER",
+    x=400,
+    y=-300,
+    anchor_x="center",
+    batch=main_batch,
+    font_size=48,
+)
 
-counter = pyglet.window.FPSDisplay(window=game_window)
+counter = FPSDisplay(window=game_window)
 
 player_ship = None
 player_lives = []
@@ -39,7 +57,7 @@ def init():
     reset_level(2)
 
 
-def reset_level(num_lives=2):
+def reset_level(num_lives=3):
     global player_ship, player_lives, game_objects, event_stack_size
 
     # Clear the event stack of any remaining handlers from other levels
@@ -51,7 +69,7 @@ def reset_level(num_lives=2):
         life.delete()
 
     # Initialize the player sprite
-    player_ship = player.Player(x=400, y=300, batch=main_batch)
+    player_ship = Player(x=400, y=300, batch=main_batch)
 
     # Make three sprites to represent remaining lives
     player_lives = load.player_lives(num_lives, main_batch)
@@ -86,7 +104,6 @@ def update(dt):
     # This method also avoids the problem of colliding an object with itself.
     for i in range(len(game_objects)):
         for j in range(i + 1, len(game_objects)):
-
             obj_1 = game_objects[i]
             obj_2 = game_objects[j]
 
@@ -109,7 +126,7 @@ def update(dt):
         obj.new_objects = []
 
         # Check for win condition
-        if isinstance(obj, asteroid.Asteroid):
+        if isinstance(obj, Asteroid):
             asteroids_remaining += 1
 
     if asteroids_remaining == 0:
@@ -131,7 +148,7 @@ def update(dt):
         game_objects.remove(to_remove)
 
         # Bump the score if the object to remove is an asteroid
-        if isinstance(to_remove, asteroid.Asteroid):
+        if isinstance(to_remove, Asteroid):
             score += 1
             score_label.text = "Score: " + str(score)
 
@@ -153,11 +170,6 @@ def update(dt):
 
 
 if __name__ == "__main__":
-    # Start it up!
     init()
-
-    # Update the game 120 times per second
-    pyglet.clock.schedule_interval(update, 1 / 120.0)
-
-    # Tell pyglet to do its thing
-    pyglet.app.run()
+    clock.schedule_interval(update, 1 / 120.0)
+    app.run()
