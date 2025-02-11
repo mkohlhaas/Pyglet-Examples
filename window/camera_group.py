@@ -1,4 +1,6 @@
-""" Camera class similar to that of camera.py, this time implemented as a graphics Group.
+#!/usr/bin/env python
+
+"""Camera class similar to that of camera.py, this time implemented as a graphics Group.
 Interface is much more simplified, with only a position and zoom implemented, but is easily
 extended to add other features such as autoscroll.
 
@@ -24,14 +26,17 @@ Note that everything in the window can be added to the same batch, as a group is
 seperate things in world space from things in "UI" space.
 """
 
-import pyglet
-from pyglet.graphics import Group
+from pyglet import app, clock
+from pyglet.graphics import Batch, Group
 from pyglet.math import Vec2
-
+from pyglet.shapes import Rectangle
+from pyglet.text import Label
+from pyglet.window import Window
+from pyglet.window import key
 
 
 class CameraGroup(Group):
-    """ Graphics group emulating the behaviour of a camera in 2D space. """
+    """Graphics group emulating the behaviour of a camera in 2D space."""
 
     def __init__(self, window, x, y, zoom=1.0, order=0, parent=None):
         super().__init__(order, parent)
@@ -51,30 +56,32 @@ class CameraGroup(Group):
         self.x, self.y = new_position
 
     def set_state(self):
-        """ Apply zoom and camera offset to view matrix. """
+        """Apply zoom and camera offset to view matrix."""
 
         # Translate using the offset.
-        view_matrix = self._window.view.translate(-self.x * self.zoom, -self.y * self.zoom, 0)
+        view_matrix = self._window.view.translate(
+            (-self.x * self.zoom, -self.y * self.zoom, 0)
+        )
         # Scale by zoom level.
-        view_matrix = view_matrix.scale(self.zoom, self.zoom, 1)
+        view_matrix = view_matrix.scale((self.zoom, self.zoom, 1))
 
         self._window.view = view_matrix
 
     def unset_state(self):
-        """ Revert zoom and camera offset from view matrix. """
+        """Revert zoom and camera offset from view matrix."""
         # Since this is a matrix, you will need to reverse the translate after rendering otherwise
         # it will multiply the current offset every draw update pushing it further and further away.
 
         # Use inverse zoom to reverse zoom
-        view_matrix = self._window.view.scale(1 / self.zoom, 1 / self.zoom, 1)
+        view_matrix = self._window.view.scale((1 / self.zoom, 1 / self.zoom, 1))
         # Reverse translate.
-        view_matrix = view_matrix.translate(self.x * self.zoom, self.y * self.zoom, 0)
+        view_matrix = view_matrix.translate((self.x * self.zoom, self.y * self.zoom, 0))
 
         self._window.view = view_matrix
 
 
 class CenteredCameraGroup(CameraGroup):
-    """ Alternative centered camera group.
+    """Alternative centered camera group.
 
     (0, 0) will be the center of the screen, as opposed to the bottom left.
     """
@@ -89,7 +96,6 @@ class CenteredCameraGroup(CameraGroup):
         self._window.view = view_matrix
 
     def unset_state(self):
-
         x = -self._window.width // 2 / self.zoom + self.x
         y = -self._window.height // 2 / self.zoom + self.y
 
@@ -99,62 +105,67 @@ class CenteredCameraGroup(CameraGroup):
 
 
 if __name__ == "__main__":
-    from pyglet.window import key
-
     # Create a window and a batch
-    window = pyglet.window.Window(resizable=True)
-    batch = pyglet.graphics.Batch()
+    wnd = Window(resizable=True)
+    batch = Batch()
 
     # Key handler for movement
     keys = key.KeyStateHandler()
-    window.push_handlers(keys)
+    wnd.push_handlers(keys)
 
     # Use centered
-    camera = CenteredCameraGroup(window, 0, 0)
+    camera = CenteredCameraGroup(wnd, 0, 0)
     # Use un-centered
-    # camera = CameraGroup(0, 0)
+    # camera = CameraGroup(wnd, 0, 0)
 
     # Create a scene
-    rect = pyglet.shapes.Rectangle(-25, -25, 50, 50, batch=batch, group=camera)
-    text = pyglet.text.Label("Text works too!", x=0, y=-50, anchor_x="center", batch=batch, group=camera)
+    rect = Rectangle(-25, -25, 50, 50, batch=batch, group=camera)
+    text = Label(
+        "Text works too!",
+        x=0,
+        y=-50,
+        anchor_x="center",
+        batch=batch,
+        group=camera,
+    )
 
     # Create some "UI"
-    ui_text = pyglet.text.Label(
+    ui_text = Label(
         "Simply don't add to the group to make UI static (like this)",
-        anchor_y="bottom", batch=batch,
+        anchor_y="bottom",
+        batch=batch,
     )
-    position_text = pyglet.text.Label(
+    position_text = Label(
         "",
-        x=window.width,
-        anchor_x="right", anchor_y="bottom",
+        x=wnd.width,
+        anchor_x="right",
+        anchor_y="bottom",
         batch=batch,
     )
 
-    @window.event
+    @wnd.event
     def on_draw():
-        # Draw our scene
-        window.clear()
+        wnd.clear()
         batch.draw()
 
-    @window.event
-    def on_resize(width: float, height: float):
+    @wnd.event
+    def on_resize(width: float, _height: float):
         # Keep position text label to the right
         position_text.x = width
 
     def on_update(dt: float):
         # Move camera with arrow keys
         if keys[key.UP]:
-            camera.y += 50*dt
+            camera.y += 100 * dt
         if keys[key.DOWN]:
-            camera.y -= 50*dt
+            camera.y -= 100 * dt
         if keys[key.LEFT]:
-            camera.x -= 50*dt
+            camera.x -= 100 * dt
         if keys[key.RIGHT]:
-            camera.x += 50*dt
+            camera.x += 100 * dt
 
         # Update position text label
         position_text.text = repr(round(camera.position))
 
-    # Start the demo
-    pyglet.clock.schedule(on_update)
-    pyglet.app.run()
+    clock.schedule(on_update)
+    app.run()

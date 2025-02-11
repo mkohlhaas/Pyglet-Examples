@@ -1,4 +1,4 @@
-import pyglet
+from pyglet.window import Window
 
 """Camera class for easy scrolling and zooming.
 
@@ -56,10 +56,12 @@ manager, allowing easy use of "with"::
 
 
 class Camera:
-    """ A simple 2D camera that contains the speed and offset."""
+    """A simple 2D camera that contains the speed and offset."""
 
-    def __init__(self, window: pyglet.window.Window, scroll_speed=1, min_zoom=1, max_zoom=4):
-        assert min_zoom <= max_zoom, "Minimum zoom must not be greater than maximum zoom"
+    def __init__(self, window: Window, scroll_speed=1, min_zoom=1, max_zoom=4):
+        assert (
+            min_zoom <= max_zoom
+        ), "Minimum zoom must not be greater than maximum zoom"
         self._window = window
         self.scroll_speed = scroll_speed
         self.max_zoom = max_zoom
@@ -74,7 +76,7 @@ class Camera:
 
     @zoom.setter
     def zoom(self, value):
-        """ Here we set zoom, clamp value to minimum of min_zoom and max of max_zoom."""
+        """Here we set zoom, clamp value to minimum of min_zoom and max of max_zoom."""
         self._zoom = max(min(value, self.max_zoom), self.min_zoom)
 
     @property
@@ -88,9 +90,9 @@ class Camera:
         self.offset_x, self.offset_y = value
 
     def move(self, axis_x, axis_y):
-        """ Move axis direction with scroll_speed.
-            Example: Move left -> move(-1, 0)
-         """
+        """Move axis direction with scroll_speed.
+        Example: Move left -> move(-1, 0)
+        """
         self.offset_x += self.scroll_speed * axis_x
         self.offset_y += self.scroll_speed * axis_y
 
@@ -98,9 +100,11 @@ class Camera:
         # Set the current camera offset so you can draw your scene.
 
         # Translate using the offset.
-        view_matrix = self._window.view.translate((-self.offset_x * self._zoom, -self.offset_y * self._zoom, 0))
+        view_matrix = self._window.view.translate(
+            (-self.offset_x * self._zoom, -self.offset_y * self._zoom, 0)  # type: ignore
+        )
         # Scale by zoom level.
-        view_matrix = view_matrix.scale((self._zoom, self._zoom, 1))
+        view_matrix = view_matrix.scale((self._zoom, self._zoom, 1))  # type: ignore
 
         self._window.view = view_matrix
 
@@ -109,9 +113,11 @@ class Camera:
         # it will multiply the current offset every draw update pushing it further and further away.
 
         # Reverse scale, since that was the last transform.
-        view_matrix = self._window.view.scale((1 / self._zoom, 1 / self._zoom, 1))
+        view_matrix = self._window.view.scale((1 / self._zoom, 1 / self._zoom, 1))  # type: ignore
         # Reverse translate.
-        view_matrix = view_matrix.translate((self.offset_x * self._zoom, self.offset_y * self._zoom, 0))
+        view_matrix = view_matrix.translate(
+            (self.offset_x * self._zoom, self.offset_y * self._zoom, 0)  # type: ignore
+        )
 
         self._window.view = view_matrix
 
@@ -129,15 +135,14 @@ class CenteredCamera(Camera):
         x = -self._window.width // 2 / self._zoom + self.offset_x
         y = -self._window.height // 2 / self._zoom + self.offset_y
 
-        view_matrix = self._window.view.translate((-x * self._zoom, -y * self._zoom, 0))
-        view_matrix = view_matrix.scale((self._zoom, self._zoom, 1))
+        view_matrix = self._window.view.translate((-x * self._zoom, -y * self._zoom, 0))  # type: ignore
+        view_matrix = view_matrix.scale((self._zoom, self._zoom, 1))  # type: ignore
         self._window.view = view_matrix
 
     def end(self):
         x = -self._window.width // 2 / self._zoom + self.offset_x
         y = -self._window.height // 2 / self._zoom + self.offset_y
 
-        view_matrix = self._window.view.scale((1 / self._zoom, 1 / self._zoom, 1))
-        view_matrix = view_matrix.translate((x * self._zoom, y * self._zoom, 0))
+        view_matrix = self._window.view.scale((1 / self._zoom, 1 / self._zoom, 1))  # type: ignore
+        view_matrix = view_matrix.translate((x * self._zoom, y * self._zoom, 0))  # type: ignore
         self._window.view = view_matrix
-
