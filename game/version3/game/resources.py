@@ -1,4 +1,5 @@
-import pyglet
+from pyglet.resource import image
+from pyglet import resource
 
 
 def center_image(image):
@@ -7,23 +8,21 @@ def center_image(image):
     image.anchor_y = image.height / 2
 
 
-# Tell pyglet where to find the resources
-pyglet.resource.path = ['../resources']
-pyglet.resource.reindex()
+resource.path = ["../resources"]
+resource.reindex()
 
-# Load the three main resources and get them to draw centered
-player_image = pyglet.resource.image("player.png")
+player_image = image("player.png")
 center_image(player_image)
 
-bullet_image = pyglet.resource.image("bullet.png")
+bullet_image = image("bullet.png")
 center_image(bullet_image)
 
-asteroid_image = pyglet.resource.image("asteroid.png")
+asteroid_image = image("asteroid.png")
 center_image(asteroid_image)
 
-# The engine flame should not be centered on the ship. Rather, it should be shown
-# behind it. To achieve this effect, we just set the anchor point outside the
-# image bounds.
-engine_image = pyglet.resource.image("engine_flame.png")
-engine_image.anchor_x = engine_image.width * 1.5
-engine_image.anchor_y = engine_image.height / 2
+# The engine flame should not be centered on the ship.
+# Rather, it should be shown behind it. To achieve this effect,
+# we just set the anchor point outside the image bounds.
+engine_image = resource.image("engine_flame.png")
+engine_image.anchor_x = int(engine_image.width * 1.5)
+engine_image.anchor_y = int(engine_image.height / 2)
