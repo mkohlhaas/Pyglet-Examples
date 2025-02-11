@@ -1,13 +1,27 @@
-import pyglet
+#!/usr/bin/env python
 
-window = pyglet.window.Window()
-image = pyglet.resource.image('kitten.jpg')
+from pyglet import app
+from pyglet.resource import image
+from pyglet.window import Window
+
+wnd = Window()
+image = image("kitten.jpg")
+
+print(image.width, image.height)
+print(wnd.width, wnd.height)
 
 
-@window.event
+def center(win, img):
+    return (
+        win.width // 2 - img.width // 2,
+        win.height // 2 - img.height // 2,
+    )
+
+
+@wnd.event
 def on_draw():
-    window.clear()
-    image.blit(0, 0)
+    wnd.clear()
+    image.blit(*center(wnd, image))
 
 
-pyglet.app.run()
+app.run()

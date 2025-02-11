@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """Load and display a GIF animation.
 
 Usage::
@@ -7,34 +8,38 @@ Usage::
 
 If the filename is omitted, a sample animation is loaded
 """
-# The dinosaur.gif file packaged alongside this script is in the public
-# domain, it was obtained from http://www.gifanimations.com/.
 
 import sys
 
-import pyglet
+from pyglet import app, gl, resource
+from pyglet.image import load_animation
+from pyglet.image.atlas import TextureBin
+from pyglet.sprite import Sprite
+from pyglet.window import Window
 
 if len(sys.argv) > 1:
-    # Load the animation from file path.
-    animation = pyglet.image.load_animation(sys.argv[1])
-    texture_bin = pyglet.image.atlas.TextureBin()
-    animation.add_to_texture_bin(texture_bin)
+    animation = load_animation(sys.argv[1])
+    animation.add_to_texture_bin(TextureBin())
 else:
-    # Load animation from resource (this script's directory).
-    animation = pyglet.resource.animation('dinosaur.gif')
+    animation = resource.animation("dinosaur.gif")
 
-window = pyglet.window.Window(width=animation.get_max_width(), height=animation.get_max_height())
-sprite = pyglet.sprite.Sprite(animation)
-
-
-# Set window background color to white.
-pyglet.gl.glClearColor(1, 1, 1, 1)
+wnd = Window(
+    width=animation.get_max_width(),
+    height=animation.get_max_height(),
+)
 
 
-@window.event
+@wnd.event
 def on_draw():
-    window.clear()
+    wnd.clear()
     sprite.draw()
 
 
-pyglet.app.run()
+sprite = Sprite(animation)
+
+
+# Set window background color to white.
+gl.glClearColor(1, 1, 1, 1)
+
+
+app.run()

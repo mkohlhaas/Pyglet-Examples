@@ -1,17 +1,25 @@
-import pyglet
+#!/usr/bin/env python
 
-window = pyglet.window.Window()
-label = pyglet.text.Label('Hello, world',
-                          font_name='Times New Roman',
-                          font_size=36,
-                          x=window.width//2, y=window.height//2,
-                          anchor_x='center', anchor_y='center')
+from pyglet import app
+from pyglet.text import Label
+from pyglet.window import Window
+
+wnd = Window()
+label = Label(
+    "Hello, world!",
+    font_name="Times New Roman",
+    font_size=148,
+    x=wnd.width // 2,
+    y=wnd.height // 2,
+    anchor_x="center",
+    anchor_y="center",
+)
 
 
-@window.event
+@wnd.event
 def on_draw():
-    window.clear()
+    wnd.clear()
     label.draw()
 
 
-pyglet.app.run()
+app.run()

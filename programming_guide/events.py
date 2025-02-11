@@ -1,29 +1,34 @@
-import pyglet
-from pyglet.window import key
-from pyglet.window import mouse
+#!/usr/bin/env python
 
-window = pyglet.window.Window()
+from pyglet import app
+from pyglet.window import Window, key, mouse, event
+
+wnd = Window()
 
 
-@window.event
-def on_key_press(symbol, modifiers):
+@wnd.event
+def on_key_press(symbol, _modifiers):
     if symbol == key.A:
         print('The "A" key was pressed.')
     elif symbol == key.LEFT:
-        print('The left arrow key was pressed.')
+        print("The left arrow key was pressed.")
     elif symbol == key.ENTER:
-        print('The enter key was pressed.')
+        print("The enter key was pressed.")
 
 
-@window.event
-def on_mouse_press(x, y, button, modifiers):
+@wnd.event
+def on_mouse_press(_x, _y, button, _modifiers):
     if button == mouse.LEFT:
-        print('The left mouse button was pressed.')
+        print("The left mouse button was pressed.")
 
 
-@window.event
+@wnd.event
 def on_draw():
-    window.clear()
+    wnd.clear()
 
 
-pyglet.app.run()
+event_logger = event.WindowEventLogger()
+wnd.push_handlers(event_logger)
+
+
+app.run()
